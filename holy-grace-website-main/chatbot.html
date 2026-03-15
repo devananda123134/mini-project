@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - Holy Grace Academy</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+   
+   <div class="chat-container">
+
+    <!-- Chat Header -->
+    <div class="chat-header">
+
+        <div class="header-left">
+            <img src="images/ai-man.jpeg" class="header-avatar">
+            <div>
+                <h4>College Assistant</h4>
+                <span class="status">We typically reply in few minutes</span>
+            </div>
+        </div>
+
+        <button onclick="window.location.href='index.html'" class="close-btn">✕</button>
+
+    </div>
+
+
+    <!-- Chat Messages -->
+    <div id="chat-log" class="chat-body">
+
+        <div class="message bot">
+            Hi 👋 Welcome to Holy Grace Academy!
+        </div>
+
+        <!-- Quick Buttons -->
+        <div class="quick-buttons">
+            <button class="faq-btn" data-question="admissions">Admissions</button>
+            <button class="faq-btn" data-question="fees">Fees</button>
+            <button class="faq-btn" data-question="courses">Courses</button>
+            <button class="faq-btn" data-question="contact">Contact</button>
+        </div>
+
+    </div>
+
+
+    <!-- Input -->
+    <div class="chat-input-area">
+
+        <input type="text" id="user-input" placeholder="Enter your message...">
+
+        <button id="send-btn">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+    <footer>
+        <p>&copy; Holy Grace Academy of Engineering is Designed By Gravity Innovations</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

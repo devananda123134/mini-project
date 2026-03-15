@@ -1,0 +1,83 @@
+[
+  {
+    "heading": "INTRO in Legal Contracts using Domain-Specific Transformers",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "Lexi Check: Semantic Analysis and Risk Assessment Sarah L. Vos, Michael Chang Center for Computational Law, Stanford University July 12, 2025 Abstract The manual review of legal contracts is a labor-intensive, expensive, and error-prone process. In high-volume environments such as procurement or mergers and acquisitions(M&A),legal teams often struggle to identify risky clauses hidden within thousands of pages of legalese. this paper introduces”Lexi Check,”an automated contract review system based on the long former architecture. Unlike standard BERT models limited by a512-token window,Lexi check utilizes sparse attention mechanisms to process entire agreements (up to 4,096 tokens) in a single pass. We demonstrate its effi cacy in extracting and classifying 12 distinct types of high-risk clauses, achieving an F1-score of0.84on the cu ad(Contract Understanding Atticus Dataset),comparable to junior legal associates."
+      }
+    ]
+  },
+  {
+    "heading": "1 Introduction",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "contracts are the lifeblood of modern commerce. a typical Fortune2000company maintains between 20,000 and 40,000 active contracts. Reviewing these documents—specifically Non-Disclosure Agreements (nd as), Master Services Agreements (MSAs), and Software Licensing Agreements(SLAs)—consumes significant legal resources. The primary challenge in automating this process is the ”Semantic Gap.” A clause limiting liability might be phrased in endless variations. For example, ”Vendor’s liability shall not exceed$50,000”and”in no event shall the Service provider be liable for damages surpassing the aggregate fees paid”mean semantically similar things(a cap on Liability)but share very little lexical overlap. Traditional keyword-based systems (”Ctrl+F” approaches) fail to capture these nuances. while recent advancements in Large Language Models(ll ms)have shown promise,generalpurpose models often hallucinate legal interpretations or fail to cite the specific text responsible for a risk flag. Lexi Check addresses these issues by treating contract review as a two-stage problem: 1. Clause Extraction: Identifying the specific span of text relevant to a legal topic. 2. Risk Classification: categorizing that span as”Standard,””Non-Standard,”or”High Risk”based on a client’s playbook. 1"
+      }
+    ]
+  },
+  {
+    "heading": "2 Dataset Construction",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "Training models for the legal domain is notoriously difficult due to the scarcity of public data. contracts are confidential by nature. we utilized the Contract Understanding Atticus Dataset(cu ad),an expert-annotated corpus of510legal contracts. 2.1 Annotation Taxonomy we focused on12critical clause categories that most frequently trigger negotiation: - Indemnification: who pays if a third party sues? - limitation of Liability: is there a cap on damages? - Governing Law: which jurisdiction(e.g.,New York,Delaware)applies? - termination for Convenience: can one party quit without cause? - Non-Compete: are parties restricted from working with competitors? 2.2 Data Augmentation To improve robustness, we employed ”Legal Synonym Replacement.” We parsed a secondary corpus of50,000edgar filings to build a dictionary of interchangeable legal terms (e.g.,substituting”Vendor”with”Contractor,””Supplier,”or”Provider”). during training,we randomly swapped these entities to ensure the model learned the underlying legal concepts rather than overfitting to specific entity names."
+      }
+    ]
+  },
+  {
+    "heading": "3 Model Architecture",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "Legal documents are long. A standard MSA can easily exceed 20 pages (10,000+ words). Standard Transformer models like BERT have a quadratic complexity O ( n 2 ) with respect to sequence length,limiting them to512tokens. truncating a contract risks losing critical context defined in the definitions section or addendums. 3.1 The long former Encoder we adopted the long former architecture,which utilizes a”Sliding Window Attention”mechanism. instead of every token attending to every other token,each token attends only to its local neighborhood and a few global ”special tokens” (like the [CLS] token). This reduces complexity to O ( n ) ,allowing us to process sequences up to4,096tokens. 3.2 Hierarchical Classification Head The output embeddings from the long former are fed into a hierarchical classification head. Layer1: binary classifier(is this sentence a risk clause?) Layer2: Multi-class class ifier (If yes, which type: Indemnity, Warranty, etc.?) Layer 3: Risk Scorer (Is this favorable to the buyer or Seller?)"
+      }
+    ]
+  },
+  {
+    "heading": "4 Experimental Results Model Precision Recall F1-Score",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "we evaluated Lexi check against two baselines: a standard BERT-base model(using a sliding window chunking approach)and a Rule-Based System(Regex). 2 Table1: performance on Clause Extraction(Exact Match) Rule-Based(Regex) 0.92 0.35 0.51 BERT-base(Chunked) 0.76 0.72 0.74 Lexi Check(long former) 0.81 0.87 0.84 4.1 analysis of Errors The Rule-Based system had high precision but terrible recall; it missed any clause that didn’t match its rigid patterns. BERT-base suffered from ”context fragmentation.” In several cases, a definition appearing on Page 1 (e.g., ”The term ’Services’ excludes maintenance”)altered the meaning of a clause on Page15. the chunking approach severed this link. Lexi Check,with its larger context window,successfully maintained this dependency."
+      }
+    ]
+  },
+  {
+    "heading": "5 Risk Assessment and Playbooks",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "Identifying a clause is only half the battle. A lawyer needs to know why it matters. Lexicheck integrates a”Playbook Logic”engine. 5.1 Playbook Configuration users can define policies using natural language logic. Example Policy: ”flag any Limitation of liability that is less than2x the annual contract value.” The system extracts the Liability Cap (e.g., ”$100,000”) and the Contract Value (e.g., ”$60,000/year”). it then performs symbolic reasoning: 100 , 000 < (2 × 60 , 000) → True(Risk Flagged) 5.2 Redlining Suggestions For detected risks, the system suggests alternative wording from a ”Preferred Clause Library.” Listing1: Example Suggestion ORIGINAL: \"Vendor shall have no liability for indirect damages.\" RISK: High. Unbalanced. SUGGESTION: \"Except for cases of Gross Negligence or Willful Misconduct, neither party shall be liable for indirect damages.\""
+      }
+    ]
+  },
+  {
+    "heading": "6 Ethical and Practical Considerations",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "6.1 bias in Legal Data The cu ad dataset is heavily skewed towards US Commercial Law. When tested on UK or EU contracts, performance dropped by 15%. The model struggled with concepts unique to gdp r (e.g., ”Data Controller” vs. ”Data Processor”) that were underrepresented in the US-centric training data. 3 6.2 The”Black Box”Problem lawyers are risk-averse. they are hesitant to trust a neural network that can not explain its reasoning. to mitigate this,Lexi check employs Attention Visualization. when a user clicks a risk flag, the UI highlights the specific words in the source text that the model ”looked at”most heavily(high attention weights)when making the classification."
+      }
+    ]
+  },
+  {
+    "heading": "7 Conclusion",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "Lexi check demonstrates that domain-specific transformer models can significantly accelerate the contract review lifecycle. by overcoming the sequence length limitations of standard bert models,we can capture the long-range dependencies essential for legal interpretation. However,we emphasize that this is an”Assistive Intelligence,”not an autonomous lawyer. The system requires a human-in-the-loop to verify flags and handle edge cases. Future work involves integrating Generative AI (e.g., GPT-4) to draft novel clauses from scratch, rather than just selecting from a static library."
+      }
+    ]
+  },
+  {
+    "heading": "8 References",
+    "chunks": [
+      {
+        "chunk_id": 0,
+        "content": "1. belt agy,I.,Peters,M.E.,&Cohan,A.(2020). long former: The Long-Document Transformer. ar xiv preprint ar Xiv:2004.05150 . 2. hendry cks,D.,et al. (2021). cu ad:An Expert-Annotated nlp data set for Legal Contract Review. Neur ips data sets and Benchmarks . 3. chalk id is, I., et al. (2019). Neural Contract Element Extraction. European Conference on Information Retrieval . 4. Devlin, J., et al. (2019). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. NAACL-HLT . 5. sur den,H.(2014). Machine learning and Law. Washington Law Review ,89,87. 6. Ashley, K. D. (2017). Artificial Intelligence and Legal Analytics . Cambridge University Press. 4"
+      }
+    ]
+  }
+]
